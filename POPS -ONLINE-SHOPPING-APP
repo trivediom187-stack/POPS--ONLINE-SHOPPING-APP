@@ -8,18 +8,21 @@ struct Item {
 };
 
 int main() {
-    struct Item cart[5] = {
-        {"Apple iPhone 15", 79999, 1},
-        {"Boat Wireless Headphones", 2499, 2},
-        {"Nike Running Shoes", 5999, 1},
-        {"Logitech Wireless Mouse", 1299, 1},
-        {"Fastrack Smartwatch", 3499, 1}
+    struct Item store[5] = {
+        {"Apple iPhone 15", 79999, 0},
+        {"Boat Wireless Headphones", 2499, 0},
+        {"Nike Running Shoes", 5999, 0},
+        {"Logitech Wireless Mouse", 1299, 0},
+        {"Fastrack Smartwatch", 3499, 0}
     };
     
-    int total_items = 5; 
+    struct Item cart[5]; 
+    int total_store_items = 5;
+    int cart_count = 0;
     int total_amount = 0;
-    int choice;
+    int item_choice, qty_choice, confirm_choice;
     int payment_choice;
+    
     char card_number[20] = "0000000000000000"; 
     char expiry[10] = "";
     char cvv[5] = "";
@@ -30,8 +33,52 @@ int main() {
     printf("    [ Designed & Developed by: OM TRIVEDI ]\n");
     printf("===========================================\n\n");
     
-    printf("--- YOUR SHOPPING CART ---\n");
-    for(int i = 0; i < total_items; i++) {
+    printf("--- CHOOSE ITEMS TO ADD TO CART ---\n");
+    for(int i = 0; i < total_store_items; i++) {
+        printf("Press [%d] to select -> %s (Rs. %d)\n", i+1, store[i].name, store[i].price);
+    }
+    
+    while(1) {
+        printf("\nEnter item number (1-5) to add, or 0 to finish selection: ");
+        scanf("%d", &item_choice);
+        
+        if(item_choice == 0) {
+            break;
+        }
+        
+        if(item_choice < 1 || item_choice > total_store_items) {
+            printf("Invalid selection! Please enter a number between 1 and 5.\n");
+            continue;
+        }
+        
+        printf("Enter quantity for %s: ", store[item_choice-1].name);
+        scanf("%d", &qty_choice);
+        
+        if(qty_choice <= 0) {
+            printf("Quantity must be 1 or more!\n");
+            continue;
+        }
+        
+        int idx = item_choice - 1;
+        strcpy(cart[cart_count].name, store[idx].name);
+        cart[cart_count].price = store[idx].price;
+        cart[cart_count].quantity = qty_choice;
+        
+        printf("🛒 %s (x%d) successfully added to cart!\n", cart[cart_count].name, cart[cart_count].quantity);
+        cart_count++;
+    }
+    
+    if(cart_count == 0) {
+        printf("\n❌ Cart is empty. Exiting application.\n");
+        printf("===========================================\n");
+        printf(" Thank you for shopping! Powered by Om Trivedi\n");
+        printf("===========================================\n");
+        return 0;
+    }
+    
+    printf("\n===========================================\n");
+    printf("--- YOUR FINAL SHOPPING CART ---\n");
+    for(int i = 0; i < cart_count; i++) {
         int item_total = cart[i].price * cart[i].quantity;
         printf("%d. %s\n", i+1, cart[i].name);
         printf("   Price: Rs. %d x Qty: %d = Rs. %d\n", cart[i].price, cart[i].quantity, item_total);
@@ -41,27 +88,11 @@ int main() {
     printf("Total Cart Value: Rs. %d\n", total_amount);
     printf("===========================================\n\n");
     
-    printf("Press 1 to Proceed to Buy or 0 to Exit: ");
-    scanf("%d", &choice);
-    
-    if(choice == 0) {
-        printf("\n======================================================\n");
-        printf("Thank you for visiting POPS ONLINE SHOPPING APP!\n");
-        printf("Application created and managed by Head Developer: Om Trivedi\n");
-        printf("Have a wonderful day ahead. Goodbye!\n");
-        printf("======================================================\n");
-        return 0;
-    } else if(choice != 1) {
-        printf("\nInvalid choice. Exiting application.\n");
-        return 0;
-    }
-    
-    printf("\n===========================================\n");
     printf("             PAYMENT GATEWAY               \n");
     printf("===========================================\n");
     printf("Amount to Pay: Rs. %d\n\n", total_amount);
     printf("Select Payment Mode:\n");
-    printf("1. Credit Card\n");
+    printf("1. Credit Card (Online Payment)\n");
     printf("2. Cash on Delivery (COD)\n");
     printf("Enter choice (1-2): ");
     scanf("%d", &payment_choice);
@@ -83,12 +114,12 @@ int main() {
         fgets(cvv, sizeof(cvv), stdin);
         cvv[strcspn(cvv, "\n")] = 0;
         
-        printf("\nProcessing Payment... Please wait...\n");
+        printf("\nProcessing Online Payment... Please wait...\n");
         printf("Payment Successful! OTP Verified.\n\n");
     } 
     else if(payment_choice == 2) {
         strcpy(payment_mode_str, "Cash on Delivery");
-        printf("\nOrder Confirmed! Please keep cash ready at the time of delivery.\n\n");
+        printf("\nOrder Confirmed! Processing COD Logistics... Please keep cash ready.\n\n");
     } 
     else {
         printf("\nInvalid payment choice. Transaction Failed.\n");
@@ -113,7 +144,7 @@ int main() {
     printf("-------------------------------------------\n");
     printf(" Items Ordered:\n");
     
-    for(int i = 0; i < total_items; i++) {
+    for(int i = 0; i < cart_count; i++) {
         printf(" - %s (x%d)\n", cart[i].name, cart[i].quantity);
     }
     
@@ -121,9 +152,21 @@ int main() {
     printf(" Subtotal      : Rs. %d\n", total_amount);
     printf(" Delivery Fees : FREE\n");
     printf(" Grand Total   : Rs. %d\n", total_amount);
-    printf("===========================================\n");
-    printf(" Thank you for shopping! Powered by Om Trivedi\n");
-    printf("===========================================\n");
+    printf("===========================================\n\n");
+    
+    while(1) {
+        printf("Press 0 to close the payment slip and exit: ");
+        scanf("%d", &confirm_choice);
+        if(confirm_choice == 0) {
+            printf("\n===========================================\n");
+            printf(" Thank you for shopping! Powered by Om Trivedi\n");
+            printf("===========================================\n");
+            break;
+        } else {
+            printf("Invalid key! Please press 0 to exit safely.\n");
+        }
+    }
 
     return 0;
 }
+
