@@ -1,0 +1,129 @@
+#include <stdio.h>
+#include <string.h>
+
+struct Item {
+    char name[50];
+    int price;
+    int quantity;
+};
+
+int main() {
+    struct Item cart[5] = {
+        {"Apple iPhone 15", 79999, 1},
+        {"Boat Wireless Headphones", 2499, 2},
+        {"Nike Running Shoes", 5999, 1},
+        {"Logitech Wireless Mouse", 1299, 1},
+        {"Fastrack Smartwatch", 3499, 1}
+    };
+    
+    int total_items = 5; 
+    int total_amount = 0;
+    int choice;
+    int payment_choice;
+    char card_number[20] = "0000000000000000"; 
+    char expiry[10] = "";
+    char cvv[5] = "";
+    char payment_mode_str[30] = "";
+    
+    printf("===========================================\n");
+    printf("         POPS ONLINE SHOPPING APP          \n");
+    printf("    [ Designed & Developed by: OM TRIVEDI ]\n");
+    printf("===========================================\n\n");
+    
+    printf("--- YOUR SHOPPING CART ---\n");
+    for(int i = 0; i < total_items; i++) {
+        int item_total = cart[i].price * cart[i].quantity;
+        printf("%d. %s\n", i+1, cart[i].name);
+        printf("   Price: Rs. %d x Qty: %d = Rs. %d\n", cart[i].price, cart[i].quantity, item_total);
+        total_amount += item_total;
+    }
+    printf("-------------------------------------------\n");
+    printf("Total Cart Value: Rs. %d\n", total_amount);
+    printf("===========================================\n\n");
+    
+    printf("Press 1 to Proceed to Buy or 0 to Exit: ");
+    scanf("%d", &choice);
+    
+    if(choice == 0) {
+        printf("\n======================================================\n");
+        printf("Thank you for visiting POPS ONLINE SHOPPING APP!\n");
+        printf("Application created and managed by Head Developer: Om Trivedi\n");
+        printf("Have a wonderful day ahead. Goodbye!\n");
+        printf("======================================================\n");
+        return 0;
+    } else if(choice != 1) {
+        printf("\nInvalid choice. Exiting application.\n");
+        return 0;
+    }
+    
+    printf("\n===========================================\n");
+    printf("             PAYMENT GATEWAY               \n");
+    printf("===========================================\n");
+    printf("Amount to Pay: Rs. %d\n\n", total_amount);
+    printf("Select Payment Mode:\n");
+    printf("1. Credit Card\n");
+    printf("2. Cash on Delivery (COD)\n");
+    printf("Enter choice (1-2): ");
+    scanf("%d", &payment_choice);
+    
+    while(getchar() != '\n'); 
+    
+    if(payment_choice == 1) {
+        strcpy(payment_mode_str, "Credit Card");
+        
+        printf("\nEnter 16-digit Credit Card Number: ");
+        fgets(card_number, sizeof(card_number), stdin);
+        card_number[strcspn(card_number, "\n")] = 0; 
+        
+        printf("Enter Expiry Date (MM/YY): ");
+        fgets(expiry, sizeof(expiry), stdin);
+        expiry[strcspn(expiry, "\n")] = 0;
+        
+        printf("Enter 3-digit CVV: ");
+        fgets(cvv, sizeof(cvv), stdin);
+        cvv[strcspn(cvv, "\n")] = 0;
+        
+        printf("\nProcessing Payment... Please wait...\n");
+        printf("Payment Successful! OTP Verified.\n\n");
+    } 
+    else if(payment_choice == 2) {
+        strcpy(payment_mode_str, "Cash on Delivery");
+        printf("\nOrder Confirmed! Please keep cash ready at the time of delivery.\n\n");
+    } 
+    else {
+        printf("\nInvalid payment choice. Transaction Failed.\n");
+        return 0;
+    }
+    
+    printf("===========================================\n");
+    printf("               PAYMENT SLIP                \n");
+    printf("          POPS ONLINE SHOPPING PVT LTD     \n");
+    printf("===========================================\n");
+    if(payment_choice == 1) {
+        printf(" Order Status : PAID\n");
+        if(strlen(card_number) >= 16) {
+            printf(" Payment Mode : %s (Ends with *%s)\n", payment_mode_str, &card_number[12]);
+        } else {
+            printf(" Payment Mode : %s\n", payment_mode_str);
+        }
+    } else {
+        printf(" Order Status : CONFIRMED (PENDING COD)\n");
+        printf(" Payment Mode : %s\n", payment_mode_str);
+    }
+    printf("-------------------------------------------\n");
+    printf(" Items Ordered:\n");
+    
+    for(int i = 0; i < total_items; i++) {
+        printf(" - %s (x%d)\n", cart[i].name, cart[i].quantity);
+    }
+    
+    printf("-------------------------------------------\n");
+    printf(" Subtotal      : Rs. %d\n", total_amount);
+    printf(" Delivery Fees : FREE\n");
+    printf(" Grand Total   : Rs. %d\n", total_amount);
+    printf("===========================================\n");
+    printf(" Thank you for shopping! Powered by Om Trivedi\n");
+    printf("===========================================\n");
+
+    return 0;
+}
