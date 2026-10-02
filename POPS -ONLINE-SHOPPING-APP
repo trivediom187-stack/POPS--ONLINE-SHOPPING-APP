@@ -27,27 +27,66 @@ int main() {
     char expiry[10] = "";
     char cvv[5] = "";
     char payment_mode_str[30] = "";
+    char coupon_code[20] = "";
     
-    printf("===========================================\n");
+    // Bill Calculations Variables
+    int discount = 0;
+    int gst_amount = 0;
+    int grand_total = 0;
+    int coupon_applied = 0; // Track if coupon is already used
+    
+    printf("*******************************************\n");
     printf("         POPS ONLINE SHOPPING APP          \n");
     printf("    [ Designed & Developed by: OM TRIVEDI ]\n");
-    printf("===========================================\n\n");
-    
-    printf("--- CHOOSE ITEMS TO ADD TO CART ---\n");
-    for(int i = 0; i < total_store_items; i++) {
-        printf("Press [%d] to select -> %s (Rs. %d)\n", i+1, store[i].name, store[i].price);
-    }
+    printf("*******************************************\n\n");
     
     while(1) {
-        printf("\nEnter item number (1-5) to add, or 0 to finish selection: ");
+        printf("--- CHOOSE ITEMS TO ADD TO CART ---\n");
+        for(int i = 0; i < total_store_items; i++) {
+            printf("Press [%d] to select -> %s (Rs. %d)\n", i+1, store[i].name, store[i].price);
+        }
+        printf("Press [6] to Apply Discount Coupon\n");
+        printf("Press [7] to Finish Selection & Checkout\n"); 
+        printf("Press [0] to Exit Application\n"); 
+        
+        printf("\nEnter choice: ");
         scanf("%d", &item_choice);
         
+        // 0 dabaane par aapka custom message print hoga aur program exit ho jayega
         if(item_choice == 0) {
+            printf("\n*******************************************\n");
+            printf(" Thank you for shopping! Powered by Om Trivedi\n");
+            printf("*******************************************\n");
+            return 0;
+        }
+        
+        // 7 dabaane par selection complete hoga aur bill calculate hoga
+        if(item_choice == 7) { 
             break;
         }
         
+        // Handle Coupon Choice
+        if(item_choice == 6) {
+            if(coupon_applied == 1) {
+                printf("❌ A coupon has already been applied!\n\n");
+                continue;
+            }
+            while(getchar() != '\n'); // Clear buffer
+            printf("Enter coupon code: ");
+            fgets(coupon_code, sizeof(coupon_code), stdin);
+            coupon_code[strcspn(coupon_code, "\n")] = 0; // Remove newline
+            
+            if(strcmp(coupon_code, "POPS20") == 0) {
+                coupon_applied = 1;
+                printf("🎉 Coupon 'POPS20' verified! 20%% discount will be applied at checkout.\n\n");
+            } else {
+                printf("❌ Invalid Coupon Code.\n\n");
+            }
+            continue;
+        }
+        
         if(item_choice < 1 || item_choice > total_store_items) {
-            printf("Invalid selection! Please enter a number between 1 and 5.\n");
+            printf("Invalid selection! Please enter a valid number.\n\n");
             continue;
         }
         
@@ -55,7 +94,12 @@ int main() {
         scanf("%d", &qty_choice);
         
         if(qty_choice <= 0) {
-            printf("Quantity must be 1 or more!\n");
+            printf("Quantity must be 1 or more!\n\n");
+            continue;
+        }
+        
+        if(cart_count >= 5) {
+            printf("Cart is full! Cannot add more items.\n\n");
             continue;
         }
         
@@ -64,19 +108,19 @@ int main() {
         cart[cart_count].price = store[idx].price;
         cart[cart_count].quantity = qty_choice;
         
-        printf("🛒 %s (x%d) successfully added to cart!\n", cart[cart_count].name, cart[cart_count].quantity);
+        printf("🛒 %s (x%d) successfully added to cart!\n\n", cart[cart_count].name, cart[cart_count].quantity);
         cart_count++;
     }
     
     if(cart_count == 0) {
         printf("\n❌ Cart is empty. Exiting application.\n");
-        printf("===========================================\n");
+        printf("*******************************************\n");
         printf(" Thank you for shopping! Powered by Om Trivedi\n");
-        printf("===========================================\n");
+        printf("*******************************************\n");
         return 0;
     }
     
-    printf("\n===========================================\n");
+    printf("\n*******************************************\n");
     printf("--- YOUR FINAL SHOPPING CART ---\n");
     for(int i = 0; i < cart_count; i++) {
         int item_total = cart[i].price * cart[i].quantity;
@@ -86,18 +130,26 @@ int main() {
     }
     printf("-------------------------------------------\n");
     printf("Total Cart Value: Rs. %d\n", total_amount);
-    printf("===========================================\n\n");
+    printf("*******************************************\n\n");
+    
+    // Calculate final bill with discount and 18% GST
+    if(coupon_applied == 1) {
+        discount = (total_amount * 20) / 100;
+    }
+    int taxable_amount = total_amount - discount;
+    gst_amount = (taxable_amount * 18) / 100;
+    grand_total = taxable_amount + gst_amount;
     
     printf("             PAYMENT GATEWAY               \n");
-    printf("===========================================\n");
-    printf("Amount to Pay: Rs. %d\n\n", total_amount);
+    printf("*******************************************\n");
+    printf("Amount to Pay: Rs. %d (Inc. GST)\n\n", grand_total);
     printf("Select Payment Mode:\n");
     printf("1. Credit Card (Online Payment)\n");
     printf("2. Cash on Delivery (COD)\n");
     printf("Enter choice (1-2): ");
     scanf("%d", &payment_choice);
     
-    while(getchar() != '\n'); 
+    while(getchar() != '\n'); // Clear buffer
     
     if(payment_choice == 1) {
         strcpy(payment_mode_str, "Credit Card");
@@ -126,10 +178,10 @@ int main() {
         return 0;
     }
     
-    printf("===========================================\n");
+    printf("*******************************************\n");
     printf("               PAYMENT SLIP                \n");
     printf("          POPS ONLINE SHOPPING PVT LTD     \n");
-    printf("===========================================\n");
+    printf("*******************************************\n");
     if(payment_choice == 1) {
         printf(" Order Status : PAID\n");
         if(strlen(card_number) >= 16) {
@@ -150,17 +202,19 @@ int main() {
     
     printf("-------------------------------------------\n");
     printf(" Subtotal      : Rs. %d\n", total_amount);
+    printf(" Coupon Disc.  : -Rs. %d\n", discount);
+    printf(" GST (18%%)     : +Rs. %d\n", gst_amount);
     printf(" Delivery Fees : FREE\n");
-    printf(" Grand Total   : Rs. %d\n", total_amount);
-    printf("===========================================\n\n");
+    printf(" Grand Total   : Rs. %d\n", grand_total);
+    printf("*******************************************\n\n");
     
     while(1) {
         printf("Press 0 to close the payment slip and exit: ");
         scanf("%d", &confirm_choice);
         if(confirm_choice == 0) {
-            printf("\n===========================================\n");
+            printf("\n*******************************************\n");
             printf(" Thank you for shopping! Powered by Om Trivedi\n");
-            printf("===========================================\n");
+            printf("*******************************************\n");
             break;
         } else {
             printf("Invalid key! Please press 0 to exit safely.\n");
